@@ -1,6 +1,7 @@
 package sanatio
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 )
@@ -53,6 +54,61 @@ func TestStringValidation(t *testing.T) {
 
 		if len(validator.GetErrors()) == 0 {
 			t.Fatalf("expected %s, but did not get an error", ErrRequiredValueNotProvided)
+		}
+	})
+
+	t.Run("returns an error if the length of a string is more than the set max length", func(t *testing.T) {
+		validator := NewStringValidator()
+		value := "string"
+		errors := validator.SetValue(value).MaxLength(4).GetErrors()
+
+		if len(errors) != 1 {
+			t.Fatal("expected an error to be thrown when we are in contravention of the maximum langth validator")
+		}
+
+		if errors[0] != ErrGreaterThanMaximumLength {
+			t.Errorf("expected %s, but got %s", ErrGreaterThanMaximumLength, errors[0])
+		}
+	})
+
+	t.Run("returns an error if the length of a string is less than the min set length", func (t *testing.T) {
+		validator := NewStringValidator()
+		value := "string"
+		errors := validator.SetValue(value).MinLength(7).GetErrors()
+
+		if len(errors) != 1 {
+			t.Fatal("expected an error to be thrown when we are in contravention of the minimum langth validator")
+		}
+
+		if errors[0] != ErrLessThanMinimumLength {
+			t.Errorf("expected %s, but got %s", ErrLessThanMinimumLength, errors[0])
+		}
+	})
+
+	t.Run("allows the user to add a custom validator", func(t *testing.T) {
+		validator := NewStringValidator()
+		value := "email@domain.com"
+		customValidator := func(value string) (error) {
+			return nil
+		}
+		validationErrors := validator.SetValue(value).Required().AddCustomValidator(customValidator).GetErrors()
+
+		if len(validationErrors) != 0 {
+			t.Errorf("shouldn't return an error while trying to use a custom validator")
+		}
+	})
+
+	t.Run("adds the custom validation's error to the errors map", func(t *testing.T) {
+		validator := NewStringValidator()
+		value := "non-registered-email@domain.com"
+		customValidator := func(value string) (error) {
+			return errors.New("email is not registered")
+		}
+
+		validationErrors := validator.SetValue(value).Required().AddCustomValidator(customValidator).GetErrors()
+
+		if len(validationErrors) != 1 {
+			t.Errorf("should return an error when a custom validation fails")
 		}
 	})
 }
