@@ -7,7 +7,10 @@ type StringValidator struct {
 }
 
 func NewStringValidator() *StringValidator {
-	return &StringValidator{}
+	errorsSlice := make([]error, 1)
+	return &StringValidator{
+		errors: errorsSlice,
+	}
 }
 
 func (s *StringValidator) SetValue(value string) (*StringValidator) {
