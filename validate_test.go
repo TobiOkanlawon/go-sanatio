@@ -18,7 +18,20 @@ func TestStringValidation(t *testing.T) {
 		validator := NewStringValidator()
 
 		if status := compareTypes(t, validator, &StringValidator{}); status == false {
-			t.Errorf("doesn't return the right validator type: %s. Expected %+v", validator, StringValidator{})
+			t.Errorf("doesn't return the right validator type: %+v. Expected %+v", validator, StringValidator{})
+		}
+	})
+
+	t.Run("sets and gets values properly", func(t *testing.T) {
+		validator := NewStringValidator()
+
+		value := "string"
+		validator.SetValue(value)
+
+		got, _ := validator.GetValue()
+
+		if value != got {
+			t.Errorf("doesn't return {%s} the value that it was given {%s}", got, value)
 		}
 	})
 
@@ -29,7 +42,7 @@ func TestStringValidation(t *testing.T) {
 		v := validator.SetValue(value)
 
 		if status := compareTypes(t, v, &StringValidator{}); status == false {
-			t.Errorf("doesn't return a string validator type: %s. Expected %+v", validator, StringValidator{})
+			t.Errorf("doesn't return a string validator type: %+v. Expected %+v", validator, StringValidator{})
 		}
 	})
 
