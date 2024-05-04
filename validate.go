@@ -101,8 +101,10 @@ func (s *StringValidator) MinLength(length uint) *StringValidator {
 }
 
 /*
-   The AddCustomValidator function allows you to add a custom validator, so long as that validator fits the CustomValidator type
- */
+The AddCustomValidator function allows you to add a custom
+validator, so long as that validator fits the CustomValidator
+type
+*/
 func (s *StringValidator) AddCustomValidator(validator CustomValidator) *StringValidator {
 	customValidatorError := validator(s.value)
 	if customValidatorError != nil {
@@ -111,3 +113,17 @@ func (s *StringValidator) AddCustomValidator(validator CustomValidator) *StringV
 	return s
 }
 
+/*
+The GetValueAndError function is an ergonomic function that returns
+the value that was set in the validator with SetValue and a
+ValidationError if the validation chain did not succeed. If there
+is an error, you can then choose to use the GetErrors function to
+retrieve an array of errors
+*/
+func (s *StringValidator) GetValueAndError() (string, error) {
+	if len(s.errors) != 0 {
+		return s.value, ValidationError
+	}
+
+	return s.value, nil
+}

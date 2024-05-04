@@ -111,4 +111,37 @@ func TestStringValidation(t *testing.T) {
 			t.Errorf("should return an error when a custom validation fails")
 		}
 	})
+
+	t.Run("gets the value and returns a ValidationError if there is one", func(t *testing.T) {
+		validator := NewStringValidator()
+		validator.SetValue("value")
+		customValidator := func(value string) (error) {
+			return errors.New("custom validator always fails")
+		}
+
+		value, err := validator.AddCustomValidator(customValidator).GetValueAndError()
+
+		if err == nil {
+			t.Fatalf("expected a ValidationError, got nil error")
+		}
+
+		if value != "value" {
+			t.Errorf("expected to get the correct value: value got %s", value)
+		}
+	})
+
+	t.Run("gets the value and nil error if there's no error", func(t *testing.T) {
+		validator := NewStringValidator()
+		validator.SetValue("value")
+
+		value, err := validator.GetValueAndError()
+
+		if err != nil {
+			t.Errorf("expected no error, but got %s", err)
+		}
+
+		if value != "value" {
+			t.Errorf("expected to get the correct value: value got %s", value)
+		}
+	})
 }
